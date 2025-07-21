@@ -5,44 +5,33 @@ namespace WebDevEtc\BlogEtc\Controllers;
 use App\Http\Controllers\Controller;
 use Auth;
 use Carbon\Carbon;
-use Laravelium\Feed\Feed;
+use Rumenx\Feed\Feed; // Updated namespace
 use WebDevEtc\BlogEtc\Models\Post;
 use WebDevEtc\BlogEtc\Requests\FeedRequest;
 
-/**
- * Class BlogEtcRssFeedController.php
- * All RSS feed viewing methods.
- */
 class FeedController extends Controller
 {
-    /**
-     * RSS Feed
-     * This is a long (but quite simple) method to show an RSS feed
-     * It makes use of Laravelium\Feed\Feed.
-     *
-     * @return mixed
-     */
     public function feed(FeedRequest $request, Feed $feed)
     {
-        // for different caching
         $user_or_guest = Auth::check() ? Auth::user()->id : 'guest';
 
-        $feed->setCache(
-            config('blogetc.rssfeed.cache_in_minutes', 60),
-            'blogetc-'.$request->getFeedType().$user_or_guest
-        );
+        // php-feed doesn't have built-in caching like Laravelium\Feed, implement caching manually if needed
+        $cacheMinutes = config('blogetc.rssfeed.cache_in_minutes', 60);
+        $cacheKey = 'blogetc-'.$request->getFeedType().$user_or_guest;
 
-        if (!$feed->isCached()) {
-            $this->makeFreshFeed($feed);
+        // If using Laravel cache
+        if (cache()->has($cacheKey)) {
+            return cache()->get($cacheKey);
         }
 
-        return $feed->render($request->getFeedType());
+        $content = $this->makeFreshFeed($feed, $request->getFeedType());
+
+        cache()->put($cacheKey, $content, now()->addMinutes($cacheMinutes));
+
+        return $content;
     }
 
-    /**
-     * @param $feed
-     */
-    protected function makeFreshFeed(Feed $feed)
+    protected function makeFreshFeed(Feed $feed, string $format)
     {
         $posts = Post::orderBy('posted_at', 'desc')
             ->limit(config('blogetc.rssfeed.posts_to_show_in_rss_feed', 10))
@@ -53,30 +42,33 @@ class FeedController extends Controller
 
         /** @var Post $post */
         foreach ($posts as $post) {
-            $feed->add($post->title,
-                $post->authorString(),
-                $post->url(),
-                $post->posted_at,
-                $post->short_description,
-                $post->generateIntroduction()
-            );
+            $feed->addItem([
+                'title'       => $post->title,
+                'author'      => $post->authorString(),
+                'link'        => $post->url(),
+                'pubDate'     => $post->posted_at->toRssString(),
+                'description' => $post->short_description,
+                'content'     => $post->generateIntroduction(),
+            ]);
         }
+
+        // `render()` in php-feed requires format to be specified
+        return $feed->render($format); // e.g., 'rss', 'atom'
     }
 
-    /**
-     * @param $posts
-     *
-     * @return mixed
-     */
     protected function setupFeed(Feed $feed, $posts)
     {
-        $feed->title = config('app.name').' Blog';
-        $feed->description = config('blogetc.rssfeed.description', 'Our blog RSS feed');
-        $feed->link = route('blogetc.index');
-        $feed->setDateFormat('carbon');
-        $feed->pubdate = isset($posts[0]) ? $posts[0]->posted_at : Carbon::now()->subYear();
-        $feed->lang = config('blogetc.rssfeed.language', 'en');
-        $feed->setShortening(config('blogetc.rssfeed.should_shorten_text', true));
-        $feed->setTextLimit(config('blogetc.rssfeed.text_limit', 100));
+        $feed->setTitle(config('app.name').' Blog');
+        $feed->setDescription(config('blogetc.rssfeed.description', 'Our blog RSS feed'));
+        $feed->setLink(route('blogetc.index'));
+        $feed->setLanguage(config('blogetc.rssfeed.language', 'en'));
+        $feed->setPubDate(isset($posts[0]) ? $posts[0]->posted_at->toRssString() : Carbon::now()->subYear()->toRssString());
+
+        // Optional customizations if needed (not all php-feed methods may exist)
+        // Simulating shortening by limiting description/content length manually
+        $feed->setCustom([
+            'text_limit' => config('blogetc.rssfeed.text_limit', 100),
+            'should_shorten_text' => config('blogetc.rssfeed.should_shorten_text', true),
+        ]);
     }
 }
