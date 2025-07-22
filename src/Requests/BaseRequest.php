@@ -2,11 +2,22 @@
 
 namespace WebDevEtc\BlogEtc\Requests;
 
+use Illuminate\Foundation\Http\FormRequest;
+use WebDevEtc\BlogEtc\Interfaces\BaseRequestInterface;
+
 /**
- * @deprecated - use BaseAdminRequest instead.
- * This exists only for backwards compatibility.
- * Do not use this for any non admin panel related requests.
+ * Class BaseRequest
+ * @package WebDevEtc\BlogEtc\Requests
  */
-abstract class BaseRequest extends BaseAdminRequest
+abstract class BaseRequest extends FormRequest implements BaseRequestInterface
 {
+    /**
+     * Determine if the user is authorized to make this request.
+     *
+     * @return bool
+     */
+    public function authorize()
+    {
+        return \Auth::check() && \Auth::user()->canManageBlogEtcPosts();
+    }
 }

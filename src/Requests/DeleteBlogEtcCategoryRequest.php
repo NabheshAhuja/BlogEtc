@@ -3,7 +3,7 @@
 namespace WebDevEtc\BlogEtc\Requests;
 
 
-class DeleteBlogEtcPostRequest  extends BaseRequest {
+class DeleteBlogEtcCategoryRequest  extends BaseRequest {
 
 
     /**
@@ -13,8 +13,6 @@ class DeleteBlogEtcPostRequest  extends BaseRequest {
      */
     public function rules()
     {
-        return [
-            //
-        ];
+        return [];
     }
 }

@@ -2,13 +2,14 @@
 
 namespace WebDevEtc\BlogEtc\Requests;
 
+
 use Illuminate\Validation\Rule;
-use WebDevEtc\BlogEtc\Interfaces\LegacyGetImageFileInterface;
+use WebDevEtc\BlogEtc\Models\BlogEtcPost;
 use WebDevEtc\BlogEtc\Requests\Traits\HasCategoriesTrait;
 use WebDevEtc\BlogEtc\Requests\Traits\HasImageUploadTrait;
 
-class UpdateBlogEtcPostRequest extends BaseBlogEtcPostRequest implements LegacyGetImageFileInterface
-{
+class UpdateBlogEtcPostRequest  extends BaseBlogEtcPostRequest {
+
     use HasCategoriesTrait;
     use HasImageUploadTrait;
 
@@ -17,11 +18,13 @@ class UpdateBlogEtcPostRequest extends BaseBlogEtcPostRequest implements LegacyG
      *
      * @return array
      */
-    public function rules(): array
+    public function rules()
     {
         $return = $this->baseBlogPostRules();
-        $return['slug'][] = Rule::unique('blog_etc_posts', 'slug')->ignore($this->route()->parameter('blogPostId'));
-
+        $return['image_large'] = 'mimes:jpg,png,jpeg';
+        $return['image_medium'] = 'mimes:jpg,png,jpeg';
+        $return['image_small'] = 'mimes:jpg,png,jpeg';
+        $return['slug'] [] = Rule::unique("blog_etc_posts", "slug")->ignore($this->route()->parameter("blogPostId"));
         return $return;
     }
 }

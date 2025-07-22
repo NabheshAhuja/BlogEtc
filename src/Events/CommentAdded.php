@@ -2,27 +2,34 @@
 
 namespace WebDevEtc\BlogEtc\Events;
 
-use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
-use WebDevEtc\BlogEtc\Models\Comment;
-use WebDevEtc\BlogEtc\Models\Post;
+use Illuminate\Foundation\Events\Dispatchable;
+use Illuminate\Broadcasting\InteractsWithSockets;
+use WebDevEtc\BlogEtc\Models\BlogEtcComment;
+use WebDevEtc\BlogEtc\Models\BlogEtcPost;
 
 /**
- * Class CommentAdded.
+ * Class CommentAdded
+ * @package WebDevEtc\BlogEtc\Events
  */
 class CommentAdded
 {
-    use Dispatchable;
-    use SerializesModels;
+    use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    /** @var Post */
+    /** @var  BlogEtcPost */
     public $blogEtcPost;
-    /** @var Comment */
+    /** @var  BlogEtcComment */
     public $newComment;
 
-    public function __construct(Post $post, Comment $newComment)
+    /**
+     * CommentAdded constructor.
+     * @param BlogEtcPost $blogEtcPost
+     * @param BlogEtcComment $newComment
+     */
+    public function __construct(BlogEtcPost $blogEtcPost, BlogEtcComment $newComment)
     {
-        $this->blogEtcPost = $post;
-        $this->newComment = $newComment;
+        $this->blogEtcPost=$blogEtcPost;
+        $this->newComment=$newComment;
     }
+
 }

@@ -35,8 +35,8 @@ class ManageCategoriesController extends Controller
      */
     public function index(): View
     {
-        $categories = $this->service->indexPaginated();
 
+        $categories = $this->service->indexPaginated();
         return view(
             'blogetc_admin::categories.index',
             [
@@ -137,8 +137,11 @@ class ManageCategoriesController extends Controller
     /**
      * Delete the category.
      */
-    public function destroy(/** @scrutinizer ignore-unused */ CategoryRequest $request, $categoryID)
-    {
+    public function destroy(
+        /** @scrutinizer ignore-unused */
+        CategoryRequest $request,
+        $categoryID
+    ) {
         $this->service->delete($categoryID);
 
         return view('blogetc_admin::categories.deleted_category');

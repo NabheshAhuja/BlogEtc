@@ -3,18 +3,28 @@
 namespace WebDevEtc\BlogEtc\Middleware;
 
 use Closure;
-use WebDevEtc\BlogEtc\Helpers;
 
+/**
+ * Class UserCanManageBlogPosts
+ * @package WebDevEtc\BlogEtc\Middleware
+ */
 class UserCanManageBlogPosts
 {
+
+    /**
+     * Show 401 error if \Auth::user()->canManageBlogEtcPosts() == false
+     * @param $request
+     * @param Closure $next
+     * @return mixed
+     */
     public function handle($request, Closure $next)
     {
-        abort_if(
-            !Helpers::hasAdminGateAccess(),
-            401,
-            'User not authorised to manage blog posts'
-        );
-
+        if (!\Auth::check()) {
+            abort(401,"User not authorised to manage blog posts: You are not logged in");
+        }
+        if (!\Auth::user()->canManageBlogEtcPosts()) {
+            abort(401,"User not authorised to manage blog posts: Your account is not authorised to edit blog posts");
+        }
         return $next($request);
     }
 }

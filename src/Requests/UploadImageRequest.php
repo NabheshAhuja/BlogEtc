@@ -2,22 +2,32 @@
 
 namespace WebDevEtc\BlogEtc\Requests;
 
-class UploadImageRequest extends BaseAdminRequest
+use Illuminate\Foundation\Http\FormRequest;
+use WebDevEtc\BlogEtc\Interfaces\BaseRequestInterface;
+
+/**
+ * Class BaseRequest
+ * @package WebDevEtc\BlogEtc\Requests
+ */
+class UploadImageRequest extends BaseRequest
 {
-    public function rules(): array
+    /**
+     *  rules for uploads
+     *
+     * @return array
+     */
+    public function rules()
     {
-        return [
+        $rules = [
             'sizes_to_upload' => [
                 'required',
                 'array',
             ],
             'sizes_to_upload.*' => [
                 'string',
-                'max:100',
             ],
             'upload' => [
                 'required',
-                'image',
             ],
             'image_title' => [
                 'required',
@@ -26,5 +36,7 @@ class UploadImageRequest extends BaseAdminRequest
                 'max:150',
             ],
         ];
+
+        return $rules;
     }
 }

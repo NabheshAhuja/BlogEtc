@@ -2,9 +2,9 @@
 
 namespace WebDevEtc\BlogEtc;
 
-use Gate;
 use Illuminate\Support\ServiceProvider;
-use WebDevEtc\BlogEtc\Gates\GateTypes;
+use Swis\LaravelFulltext\ModelObserver;
+use WebDevEtc\BlogEtc\Models\BlogEtcPost;
 
 class BlogEtcServiceProvider extends ServiceProvider
 {
@@ -15,6 +15,7 @@ class BlogEtcServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+
         if (config('blogetc.include_default_routes', true)) {
             include __DIR__.'/routes.php';
         }
@@ -31,31 +32,15 @@ class BlogEtcServiceProvider extends ServiceProvider
         }
 
         // Set up default gates to allow/disallow access to features.
-        $this->setupDefaultGates();
+        //$this->setupDefaultGates();
 
         $this->publishes([
             __DIR__.'/Views/blogetc'             => base_path('resources/views/vendor/blogetc'),
             __DIR__.'/Config/blogetc.php'        => config_path('blogetc.php'),
             __DIR__.'/css/blogetc_admin_css.css' => public_path('blogetc_admin_css.css'),
         ]);
-    }
 
-    /**
-     * Set up default gates.
-     */
-    protected function setupDefaultGates(): void
-    {
-        if (!Gate::has(GateTypes::MANAGE_BLOG_ADMIN)) {
-            Gate::define(GateTypes::MANAGE_BLOG_ADMIN, include(__DIR__.'/Gates/DefaultAdminGate.php'));
-        }
 
-        /*
-         * For people to add comments to your blog posts. By default it will allow anyone - you can add your
-         * own logic here if needed.
-         */
-        if (!Gate::has(GateTypes::ADD_COMMENT)) {
-            Gate::define(GateTypes::ADD_COMMENT, include(__DIR__.'/Gates/DefaultAddCommentsGate.php'));
-        }
     }
 
     /**
@@ -65,9 +50,13 @@ class BlogEtcServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->loadViewsFrom(__DIR__.'/Views/blogetc_admin', 'blogetc_admin');
 
+        // for the admin backend views ( view("blogetc_admin::BLADEFILE") )
+        $this->loadViewsFrom(__DIR__ . "/Views/blogetc_admin", 'blogetc_admin');
+
+        // for public facing views (view("blogetc::BLADEFILE")):
         // if you do the vendor:publish, these will be copied to /resources/views/vendor/blogetc anyway
-        $this->loadViewsFrom(__DIR__.'/Views/blogetc', 'blogetc');
+        $this->loadViewsFrom(__DIR__ . "/Views/blogetc", 'blogetc');
     }
+
 }

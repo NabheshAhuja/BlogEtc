@@ -1,31 +1,37 @@
 @extends("blogetc_admin::layouts.admin_layout")
 @section("content")
+
+
     <h5>Admin - Manage Blog Posts</h5>
 
     @forelse($posts as $post)
-        <div class="card m-4">
+        <div class="card m-4" style="">
             <div class="card-body">
-                <h5 class="card-title"><a href="{{ $post->url() }}">{{ $post->title }}</a></h5>
-                <h5 class="card-subtitle mb-2 text-muted">{{$post->subtitle}}</h5>
+                <h5 class='card-title'><a href='{{$post->url()}}'>{{$post->title}}</a></h5>
+                <h5 class='card-subtitle mb-2 text-muted'>{{$post->subtitle}}</h5>
                 <p class="card-text">{{$post->html}}</p>
 
-                {!! $post->imageTag('thumbnail', false, 'float-right') !!}
+                <?=$post->image_tag("thumbnail", false, "float-right");?>
 
-                <dl>
-                    <dt>Author</dt>
-                    <dd>{{$post->author_string()}}</dd>
-                    <dt>Posted at</dt>
-                    <dd>{{$post->posted_at}}</dd>
-                    <dt>Is published?</dt>
-                    <dd>
+                <dl class="">
+                    <dt class="">Author</dt>
+                    <dd class="">{{$post->author_string()}}</dd>
+                    <dt class="">Posted at</dt>
+                    <dd class="">{{$post->posted_at}}</dd>
+
+
+                    <dt class="">Is published?</dt>
+                    <dd class="">
+
                         {!!($post->is_published ? "Yes" : '<span class="border border-danger rounded p-1">No</span>')!!}
+
                     </dd>
 
-                    <dt>Categories</dt>
-                    <dd>
+                    <dt class="">Categories</dt>
+                    <dd class="">
                         @if(count($post->categories))
                             @foreach($post->categories as $category)
-                                <a class="btn btn-outline-secondary btn-sm m-1" href="{{$category->edit_url()}}">
+                                <a class='btn btn-outline-secondary btn-sm m-1' href='{{$category->edit_url()}}'>
                                     <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
 
                                     {{$category->category_name}}
@@ -43,9 +49,13 @@
                     <div class="m-2 p-1">
                         <strong>View file:</strong><br>
                         <code>{{$post->use_view_file}}</code>
-                        @php
-                            $viewfile = resource_path('views/custom_blog_posts/' . $post->use_view_file . '.blade.php');
-                        @endphp
+
+                        <?php
+
+                        $viewfile = resource_path("views/custom_blog_posts/" . $post->use_view_file . ".blade.php");
+
+
+                        ?>
                         <br>
                         <strong>Full filename:</strong>
                         <br>
@@ -54,7 +64,7 @@
                         </small>
 
                         @if(!file_exists($viewfile))
-                            <div class="alert alert-danger">Warning! The custom view file does not exist. Create the
+                            <div class='alert alert-danger'>Warning! The custom view file does not exist. Create the
                                 file for this post to display correctly.
                             </div>
                         @endif
@@ -81,10 +91,14 @@
             </div>
         </div>
     @empty
-        <div class="alert alert-warning">No posts to show you. Why don't you add one?</div>
+        <div class='alert alert-warning'>No posts to show you. Why don't you add one?</div>
     @endforelse
 
-    <div class="text-center">
+
+
+    <div class='text-center'>
         {{$posts->appends( [] )->links()}}
     </div>
+
+
 @endsection
