@@ -30,7 +30,7 @@
   ],
   "require": {
     "intervention/image": "2.*",
-    "cviebrock/eloquent-sluggable": "^11.0",
+    "cviebrock/eloquent-sluggable": "^12.0",
     "laravel/framework": "^9.0|^10.0|^11.0|^12.0",
     "laravel/helpers": "^1.2",
     "rumenx/php-feed": "^1.0@beta"
